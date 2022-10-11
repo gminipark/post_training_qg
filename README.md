@@ -1,1 +1,2 @@
-# 2022_aacl_post_training_qg
+# 2022 AACL
+Post-Training with Interrogative Sentences for Enhancing BART-based Korean Question Generator
