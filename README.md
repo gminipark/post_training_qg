@@ -14,6 +14,11 @@ Post-Training for Question Generator implemented in Python. This repository is b
 ├── code
    ├── KS
    ├── KS_AUG
-   └── QI
-
+   ├── QI
+   ├── QI_AUG
+   ├── QI_KS
+   ├── QI_KS_AUG
+   └── vanilla
 ``` 
+
+All of directory of code has KoBart.py, dataset.py, generate.py, post_dataset.py, post_train.py, train.py
