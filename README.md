@@ -73,3 +73,8 @@ python generate.py
 |  -(QI & DA)|-0.94|-1.16|-0.75|
 |  -(KS & DA)|-1.28|-0.49|-0.20|
 |  -(KS & DA & QI)|-0.93|-1.26|-0.62|
+
+# Citation
+Our paper can be cited as follows:
+```bash
+```
