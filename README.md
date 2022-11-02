@@ -65,6 +65,8 @@ python generate.py
 Evaluation
 
 1. vanilla
+
+
 | |BLEU-4|ROUGE-L|METEOR|
 |------|:-------:|:-------:|:-------:|
 |Score|20.12|38.81|34.20|
