@@ -74,6 +74,8 @@ python generate.py
 |  -(KS & DA)|-1.28|-0.49|-0.20|
 |  -(KS & DA & QI)|-0.93|-1.26|-0.62|
 
+Evaluation code is based on https://github.com/microsoft/unilm/tree/master/unilm-v1/src/qg
+
 # Citation
 Our paper can be cited as follows:
 ```bash
