@@ -36,7 +36,9 @@ All of directory of code has KoBart.py, dataset.py, generate.py, post_dataset.py
  ```bash
  [Post-training]
   - Train: 243,425
-  - reference: AI hub MRC dataset[https://www.aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&aihubDataSe=realm&dataSetSn=89]
+  - reference
+   - AI hub MRC dataset
+   - https://www.aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&aihubDataSe=realm&dataSetSn=89
  
  [Fine-tuning]
   - Train: 54,369
