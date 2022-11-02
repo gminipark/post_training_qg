@@ -45,3 +45,19 @@ All of directory of code has KoBart.py, dataset.py, generate.py, post_dataset.py
   - reference: KorQuAD dataset[https://korquad.github.io/KorQuad%201.0/]
  ```
  
+# Training and Inference
+
+1. Post-training (Not for vanilla)
+```bash
+python post_train.py
+```
+
+2. Fine-tuning
+```bash
+python train.py
+```
+
+3. Inference
+```bash
+python post_train.py
+```
