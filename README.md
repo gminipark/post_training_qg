@@ -33,7 +33,7 @@ All of directory of code has KoBart.py, dataset.py, generate.py, post_dataset.py
  - train.py: Main code for fine-tuning.
 
  # Data
- '''
+ ```
  [Post-training]
  AI hub MRC dataset
  Train: 243,425
@@ -43,5 +43,5 @@ All of directory of code has KoBart.py, dataset.py, generate.py, post_dataset.py
  Train: 54,369
  Validation: 6,038
  Test: 5,574
- '''
+ ```
  
