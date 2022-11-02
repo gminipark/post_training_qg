@@ -2,7 +2,7 @@
 Post-Training for Question Generator implemented in Python. This repository is based on Post-Training with Interrogative Sentences for Enhancing BART-based Korean Question Generator from AACL-IJCNLP 2022.
 
 # Post-training Method List
-This list is based on ablation study of (Park et al, 2022.)
+This list is based on ablation study at (Park et al, 2022.)
 
 1. Korean Spacing(KS)
 2. Korean Spacing_Augmentation(KS_AUG)
@@ -25,3 +25,9 @@ This list is based on ablation study of (Park et al, 2022.)
 ``` 
 
 All of directory of code has KoBart.py, dataset.py, generate.py, post_dataset.py, post_train.py, train.py
+ - KoBart.py: Defining model for training. It is based KoBART[https://github.com/SKT-AI/KoBART].
+ - dataset.py: Utility code for loading and processing fine-tuning dataset.
+ - generate.py: Inference code. It is based beam search algorithm. Default beam size is 5.
+ - post_dataset.py: Utility code for loading and processing post-training dataset. objective function for post-training is implemented in this Python code.
+ - post_train.py: Main code for post-training.
+ - train.py: Main code for fine-tuning.
