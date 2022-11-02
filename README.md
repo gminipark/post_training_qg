@@ -11,14 +11,9 @@ Post-Training for Question Generator implemented in Python. This repository is b
 7. vanilla
 
 ```bash
-├── data
-│   ├── train
-│   ├── test
-│   └── validation
 ├── code
-│   ├── train.py
-│   ├── classify.py
-│   ├── model.py
-│   └── dataset.py
-└── run.sh
+   ├── KS
+   ├── KS_AUG
+   └── QI
+
 ``` 
