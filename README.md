@@ -34,12 +34,10 @@ All of directory of code has KoBart.py, dataset.py, generate.py, post_dataset.py
 
  # Data
  ```
- [Post-training]
- AI hub MRC dataset
+ [Post-training] : AI hub MRC dataset[]
  Train: 243,425
  
- [Fine-tuning]
- KorQuAD dataset
+ [Fine-tuning] : KorQuAD dataset[]
  Train: 54,369
  Validation: 6,038
  Test: 5,574
