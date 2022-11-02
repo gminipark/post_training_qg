@@ -5,11 +5,11 @@ Post-Training for Question Generator implemented in Python. This repository is b
 This list is based on ablation study at (Park et al, 2022.)
 
 1. Korean Spacing(KS)
-2. Korean Spacing_Augmentation(KS_AUG)
+2. Korean Spacing & Augmentation(KS_AUG)
 3. Question Infilling(QI)
-4. Question Infilling_Augmentation(QI_AUG)
-5. Question Infilling_Korean Spacing(QI_KS)
-6. Question Infilling_Korean Spacing_Augmentation(QI_KS_AUG)
+4. Question Infilling & Augmentation(QI_AUG)
+5. Question Infilling & Korean Spacing(QI_KS)
+6. Question Infilling & Korean Spacing & Augmentation(QI_KS_AUG)
 7. Only fine-tuning(vanilla)
 
 # Directory
