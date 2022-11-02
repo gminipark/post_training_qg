@@ -31,3 +31,17 @@ All of directory of code has KoBart.py, dataset.py, generate.py, post_dataset.py
  - post_dataset.py: Utility code for loading and processing post-training dataset. objective function for post-training is implemented in this Python code.
  - post_train.py: Main code for post-training.
  - train.py: Main code for fine-tuning.
+
+ # Data
+ '''
+ [Post-training]
+ AI hub MRC dataset
+ Train: 243,425
+ 
+ [Fine-tuning]
+ KorQuAD dataset
+ Train: 54,369
+ Validation: 6,038
+ Test: 5,574
+ '''
+ 
