@@ -32,14 +32,14 @@ All of directory of code has KoBart.py, dataset.py, generate.py, post_dataset.py
  - post_train.py: Main code for post-training.
  - train.py: Main code for fine-tuning.
 
- # Data
- ```
- [Post-training] : AI hub MRC dataset[]
- Train: 243,425
+ # Dataset
+ ```bash
+ [Post-training] : AI hub MRC dataset[https://www.aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&aihubDataSe=realm&dataSetSn=89]
+  - Train: 243,425
  
- [Fine-tuning] : KorQuAD dataset[]
- Train: 54,369
- Validation: 6,038
- Test: 5,574
+ [Fine-tuning] : KorQuAD dataset[https://korquad.github.io/KorQuad%201.0/]
+  - Train: 54,369
+  - Validation: 6,038
+  - Test: 5,574
  ```
  
