@@ -80,6 +80,10 @@ python generate.py
 
 Evaluation code is based on https://github.com/microsoft/unilm/tree/master/unilm-v1/src/qg
 
+## Reference
+- [KoBART](https://github.com/SKT-AI/KoBART)
+- [KoBART Question Generation](https://github.com/Seoneun/KoBART-Question-Generation)
+
 # Citation
 Our paper can be cited as follows:
 ```bash
