@@ -88,3 +88,11 @@ Evaluation code is based on https://github.com/microsoft/unilm/tree/master/unilm
 Our paper can be cited as follows:
 ```bash
 ```
+
+```bibtex
+@project{khu-aici,
+   title={Artificial Intelligence Convergence Innovation Human Resources Development (Kyung Hee University)},
+   support={Institute of Information & communications Technology Planning & Evaluation (IITP)},
+   num={RS-2022-00155911},
+   year={2022}
+```
