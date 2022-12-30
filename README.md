@@ -25,7 +25,7 @@ This list is based on ablation study at (Park et al, 2022.)
 ``` 
 
 All of directory of code has KoBart.py, dataset.py, generate.py, post_dataset.py, post_train.py, train.py
- - KoBart.py: Defining model for training. It is based KoBART[https://github.com/SKT-AI/KoBART].
+ - KoBart.py: Defining model for training. It is based [KoBART](https://github.com/SKT-AI/KoBART).
  - dataset.py: Utility code for loading and processing fine-tuning dataset.
  - generate.py: Inference code. It is based beam search algorithm. Default beam size is 5.
  - post_dataset.py: Utility code for loading and processing post-training dataset. Objective function for post-training is implemented in this Python code.
