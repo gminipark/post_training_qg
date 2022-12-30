@@ -86,8 +86,7 @@ Evaluation code is based on https://github.com/microsoft/unilm/tree/master/unilm
 
 # Citation
 Our paper can be cited as follows:
-```bash
-```
+
 
 ```bibtex
 @project{khu-aici,
