@@ -1,0 +1,12 @@
+transformers>=4.37.0
+sentencepiece
+accelerate
+tokenizers
+evaluate
+deepspeed
+sacrebleu
+ipykernel
+ipywidgets
+tensorboard
+jupyter
+protobuf
