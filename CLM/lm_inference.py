@@ -1,12 +1,10 @@
 # Load model directly
-from accelerate import Accelerator, PartialState
+from accelerate import PartialState
 from accelerate.utils import gather_object
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from peft import PeftModel
-from trl import setup_chat_format
 
 import argparse 
-import json
 import natsort
 import os
 import torch
