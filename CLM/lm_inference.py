@@ -279,3 +279,79 @@ def inference(args):
         # accelerator.wait_for_everyone()
         
         del model
+        
+def main():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--task_name",
+        type=str,
+        choices=[
+            "question_generation",
+            "summarization",
+            "data_to_text_generation",
+            "science_summarization",
+            "conversation_summarization"
+        ],
+    )
+
+    parser.add_argument("--max_seq_length", type=int, default=1024)
+
+    parser.add_argument(
+        "--checkpoint",
+        type=str,
+        default=None,
+    )
+
+    parser.add_argument(
+        "--checkpoint_prefix",
+        type=str,
+        default="checkpoint-*/",
+    )
+
+    parser.add_argument(
+        "--base_model_name",
+        type=str,
+        default="google/gemma-2-2b-it",
+    )
+    
+    parser.add_argument(
+        "--model_type",
+        type=str,
+        default="gemma",
+    )
+
+    parser.add_argument(
+        "--batch_size",
+        type=int,
+        default=8,
+    )
+    parser.add_argument(
+        "--num_proc",
+        type=int,
+        default=None,
+    )
+    parser.add_argument(
+        "--num_beams",
+        type=int,
+        default=4,
+    ) 
+    parser.add_argument(
+        "--min_new_tokens",
+        type=int,
+        default=0,
+    )
+    parser.add_argument(
+        "--max_new_tokens",
+        type=int,
+        default=512,
+    )
+    parser.add_argument(
+        '--use_peft',
+        action="store_true"
+    )
+    args = parser.parse_args()
+    
+    inference(args)
+if __name__ == "__main__":
+    main()
