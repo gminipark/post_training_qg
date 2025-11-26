@@ -1,5 +1,5 @@
 CUDA_VISIBLE_DEVICES=4,5,6,7 accelerate launch --main_process_port 29500 \
-    lm_inference_new.py \
+    lm_inference.py \
     --task_name question_generation \
     --max_new_tokens 128 \
     --checkpoint "./question_generation/FT/gemma-2-9b/lora/fp16/e7/lr5e-5-hl-eos-r32" \
