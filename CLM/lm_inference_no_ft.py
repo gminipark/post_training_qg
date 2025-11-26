@@ -60,3 +60,29 @@ def prepare_input(sample, model_type, system_message, text_column1_name, text_co
 SYSTEM_MESSAGES = {
     "lmqg/qg_squad" : "You are an useful AI assitant. Generate a question following the Input and Answer."
 }
+
+# PREPROCESSING_FUNCTIONS = {
+#     "llama": prepare_llama_input,
+#     "gemma": prepare_gemma_input,
+# }
+
+
+class CustomCollator(object):
+    
+    def __init__(self, tokenizer):
+        self.tokenizer = tokenizer
+
+    def __call__(self, examples):
+        
+        batch = {}
+        for key in examples[0].keys():
+            if key in ["messages", "text"]:
+                self.tokenizer.padding_side="left" 
+                batch = self.tokenizer([example[key] for example in examples],
+                                                return_tensors="pt", 
+                                                padding='longest', 
+                                                truncation=False, 
+                                                pad_to_multiple_of=8,
+                                                add_special_tokens=False)
+                # self.tokenizer.padding_side="right"
+        return batch
