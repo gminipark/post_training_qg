@@ -38,3 +38,25 @@ dataset_name_mapping = {
 
     
     
+def prepare_input(sample, model_type, system_message, text_column1_name, text_column2_name ,tokenizer):
+    
+    if 'llama' in model_type:
+        row_json =  [
+            {"role": "system", "content": system_message},
+            {"role": "user", "content": f"Input: {sample[text_column1_name]} \nAnswer: {sample[text_column2_name]} \nOutput: "},
+            # {"role": "assistant", "content": ""}
+        ]
+            
+        return {"messages" : tokenizer.apply_chat_template(row_json, tokenize=False)}
+    
+    else:
+        row_json =  [
+            {"role": "user", "content": f"{system_message} \n###Input: {sample[text_column1_name]} \n###Answer: {sample[text_column2_name]} \n###Question: "},
+            # {"role": "assistant", "content": ""}
+        ]
+    
+        return {"text" : tokenizer.apply_chat_template(row_json, tokenize=False)}
+
+SYSTEM_MESSAGES = {
+    "lmqg/qg_squad" : "You are an useful AI assitant. Generate a question following the Input and Answer."
+}
