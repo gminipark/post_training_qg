@@ -34,3 +34,29 @@ dataset_name_mapping = {
     "GEM/dart": ("tripleset", "target"),
     "allenai/common_gen": ("concepts", "target"),
 }
+
+def prepare_llama_input(sample, text_column_name, target_column_name, system_message, tokenizer):
+        
+    row_json =  [
+      {"role": "system", "content": system_message},
+      {"role": "user", "content": f"Input: {sample[text_column_name]} Output: "}
+    ]
+    
+    return {"messages" : tokenizer.apply_chat_template(row_json, tokenize=False)}
+    
+def prepare_gemma_input(sample, text_column_name, target_column_name, system_message, tokenizer):
+    
+    row_json =  [
+      {"role": "user", "content": f"{system_message} Input: {sample[text_column_name]} Output: "}
+    ]
+    
+    return {"text" : tokenizer.apply_chat_template(row_json, tokenize=False) + '<start_of_turn>model\n'}
+
+SYSTEM_MESSAGES = {
+    "lmqg/qg_squad" : "You are an useful AI assitant. Generate a question following the input."
+}
+
+PREPROCESSING_FUNCTIONS = {
+    "llama": prepare_llama_input,
+    "gemma": prepare_gemma_input,
+}
