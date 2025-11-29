@@ -5,11 +5,12 @@ from transformers import (AutoModelForSeq2SeqLM,
                           HfArgumentParser,
                           Seq2SeqTrainer, 
                           Seq2SeqTrainingArguments,
+                          Trainer,
                           set_seed)
 from transformers.trainer_utils import get_last_checkpoint
 from datasets import load_dataset
-from accelerate import Accelerator
 from huggingface_hub import HfFolder
+from accelerate import Accelerator
 
 import logging
 import os
@@ -24,9 +25,16 @@ from preprocess import (get_preprocess_function,
                         
 from typing import Optional
 
-from peft import PeftModel, PeftConfig, prepare_model_for_kbit_training, LoraConfig, get_peft_model, TaskType
+from peft import PeftModel, PeftConfig, prepare_model_for_kbit_training, LoraConfig, get_peft_model, TaskType, AutoPeftModelForSeq2SeqLM
+from trl import SFTTrainer, SFTConfig, ModelConfig, TrlParser, get_kbit_device_map, get_peft_config, get_quantization_config, setup_chat_format
+
+
+
 
 logger = logging.getLogger(__name__)
+
+
+
 
 @dataclass
 class ModelArguments:
@@ -64,6 +72,16 @@ class ModelArguments:
         metadata={'help': "The alpha parameter for Lora scaling"}
     )
     
+    use_dora: bool = field(
+        default=False,
+        metadata={'help': "Whether to use dora or not"}
+    )
+    
+    is_posttrained: bool = field(
+        default=False,
+        metadata={'help': "Whether the base model is post-trained or not"}   
+    )
+    
     token: str = field(
         default=None,
         metadata={
@@ -91,6 +109,10 @@ class ModelArguments:
                 "the model's position embeddings."
             )
         },
+    )
+    attn_implementation: str= field(
+        default="sdpa",
+        metadata={"help": "Attention implementation to use, e.g., default, eager, etc."}
     )
 
 
@@ -223,10 +245,14 @@ dataset_name_mapping = {
 
 def main():
     
-    parser = HfArgumentParser((ModelArguments, DataTrainingArguments, Seq2SeqTrainingArguments))
+    
+    accelerator = Accelerator()
+    
+    # parser = TrlParser((ModelArguments, DataTrainingArguments, SFTConfig))
+    parser = HfArgumentParser((ModelArguments, DataTrainingArguments,Seq2SeqTrainingArguments))        
+        
     model_args, data_args, training_args = parser.parse_args_into_dataclasses()
     
-    num_processes = torch.cuda.device_count()
     
     set_seed(training_args.seed)
     
@@ -236,9 +262,9 @@ def main():
     dataset = load_dataset(dataset_name, cache_dir=data_cache_dir, trust_remote_code=True)
 
     model_name_or_path=model_args.model_name_or_path
-    model_cache_dir =model_args.model_cache_dir 
     
-    if not os.path.exists(model_args.model_name_or_path):
+    model_cache_dir=None
+    if not model_args.is_posttrained:
         model_cache_dir=model_name_or_path.replace("/", "-")
 
     tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, cache_dir=model_cache_dir)
@@ -247,6 +273,8 @@ def main():
     max_source_length = data_args.max_source_length
     max_target_length = data_args.max_target_length
     prefix = data_args.source_prefix if data_args.source_prefix is not None else ""
+    
+    original_vocab_size = len(tokenizer)
     
     if "qg_squad" in dataset_name :
         tokenizer.add_tokens("<hl>")
@@ -268,12 +296,14 @@ def main():
                                             "target_column_name" : target_column_name,
                                             "max_source_length": max_source_length,
                                             "max_target_length": max_target_length,
-                                            "prefix" : prefix},
+                                            "prefix" : prefix,
+                                            "add_eos_token": True if 't5gemma' in tokenizer.name_or_path.lower() else False,
+                                            }
                                     )
     logger.info(f"Keys of tokenized dataset: {list(tokenized_dataset['train'].features)}")
     logger.info(tokenized_dataset)
 
-    metric = evaluate.load("rouge")
+    metric = evaluate.load("evaluate/metrics/rouge/rouge.py")
 
     def compute_metrics(eval_preds):
         preds, labels = eval_preds
@@ -315,29 +345,67 @@ def main():
         os.makedirs(training_args.output_dir)
     
     if last_checkpoint:
-        if model_args.use_lora:
-            model = AutoModelForSeq2SeqLM.from_pretrained(model_name_or_path, cache_dir=model_cache_dir)
-        else:
-            model = AutoModelForSeq2SeqLM.from_pretrained(last_checkpoint, cache_dir=model_cache_dir)
         
+            if model_args.use_lora:
+                model = AutoModelForSeq2SeqLM.from_pretrained(model_name_or_path, cache_dir=model_cache_dir)
+            else:
+                model = AutoModelForSeq2SeqLM.from_pretrained(last_checkpoint, cache_dir=model_cache_dir)
+            
     else:
-        model = AutoModelForSeq2SeqLM.from_pretrained(model_name_or_path, cache_dir=model_cache_dir)
+        
+        if model_args.is_posttrained:
+            try:
+                
+                peft_config = PeftConfig.from_pretrained(model_name_or_path)
+                model_cache_dir = peft_config.base_model_name_or_path.replace("/", "-")
+                peft_model = AutoPeftModelForSeq2SeqLM.from_pretrained(model_name_or_path, cache_dir=model_cache_dir)
+                
+                model = peft_model.merge_and_unload()
+                if accelerator.is_main_process:
+                    model.save_pretrained(os.path.join(training_args.output_dir, "base_model"))
+                
+            except:
+                model = AutoModelForSeq2SeqLM.from_pretrained(model_name_or_path, cache_dir=model_cache_dir)
+
+        else:
+        
+            model = AutoModelForSeq2SeqLM.from_pretrained(model_name_or_path, 
+                                                        cache_dir=model_cache_dir,
+                                                        attn_implementation=model_args.attn_implementation,
+                                                        # low_cpu_mem_usage=True,
+                                                        )
+        
     
     embedding_size = model.get_input_embeddings().weight.shape[0]
     if len(tokenizer) > embedding_size:
         model.resize_token_embeddings(len(tokenizer))
+    
+    if 't5gemma' in model_name_or_path.lower():
+        model.config.decoder.vocab_size = original_vocab_size
+        # print(f"model.config.decoder.vocab_size: {model.config.decoder.vocab_size}")
+        # print(f"model.get_decoder().get_input_embeddings(): {model.get_decoder().get_input_embeddings()}")
+
+        # 3. (Important) Update the config
+        model.vocab_size = original_vocab_size
         
-        
+        print(f"Input embedding size: {model.get_input_embeddings()}")
+        print(f"Output embedding size: {model.get_output_embeddings()}")
+
     if model_args.use_lora:
         lora_config = LoraConfig(
             r=model_args.lora_rank, 
             lora_alpha=model_args.lora_alpha,
             lora_dropout=0.05,
             bias="none",
-            task_type=TaskType.SEQ_2_SEQ_LM # FLAN-T5
+            task_type=TaskType.SEQ_2_SEQ_LM, # FLAN-T5
+            target_modules="all-linear", # ["q_proj","v_proj"], or "all-linear" ,
+            use_dora=model_args.use_dora,
         )
         model = get_peft_model(model, lora_config)
         model.print_trainable_parameters()
+        
+        if training_args.gradient_checkpointing:
+            model.enable_input_require_grads()
     
     checkpoint = None
     if training_args.resume_from_checkpoint is not None:
@@ -345,7 +413,6 @@ def main():
     elif last_checkpoint is not None:
         checkpoint = last_checkpoint    
     
-
     # we want to ignore tokenizer pad token in the loss
     label_pad_token_id = -100
     
@@ -369,27 +436,50 @@ def main():
             max_length=max_source_length,
             pad_to_multiple_of=4
         )
+    # accelerator = Accelerator()
+    
+   
 
-    
-    accelerator = Accelerator()
-    
-    trainer = accelerator.prepare(
-        Seq2SeqTrainer(
+    if data_args.post_train:
+        
+        trainer = Seq2SeqTrainer(
             model=model,
             args=training_args,
             data_collator=data_collator,
             train_dataset=tokenized_dataset['train'],
             eval_dataset=tokenized_dataset["validation"],
-            compute_metrics=compute_metrics,
-            tokenizer=tokenizer,
+            # compute_metrics=compute_metrics,
+            processing_class=tokenizer,
         )
-    )
-
+    
+    else:
+        # trainer = SFTTrainer(
+        #         model=model,
+        #         args=training_args,
+        #         data_collator=data_collator,
+        #         train_dataset=tokenized_dataset['train'],
+        #         eval_dataset=tokenized_dataset["validation"],
+        #         # compute_metrics=compute_metrics,
+        #         processing_class=tokenizer,
+        #         )
+        
+        trainer = Seq2SeqTrainer(
+            model=model,
+            args=training_args,
+            data_collator=data_collator,
+            train_dataset=tokenized_dataset['train'],
+            eval_dataset=tokenized_dataset["validation"],
+            # compute_metrics=compute_metrics,
+            processing_class=tokenizer,
+        )
+        
     trainer.train(resume_from_checkpoint=checkpoint)
     
     
     with open(os.path.join(training_args.output_dir, 'training_args.json'), 'w') as f:
         json.dump(training_args.to_dict(), f)
+        
+    # accelerator.wait_for_everyone()
 
 if __name__ == "__main__":
     main()
